@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import "./presentation.css";
 
 const quotes = [
   "El límite está en tu imaginación.",
