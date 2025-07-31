@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import Page3D from "./pages/threejs";
-import ZustandStyleIntro from "./pages/zustand.jsx";
+import ZustandStyleIntro from "./pages/zustand";
 import WaveBackground from "./pages/animations";
 import Presentation from "./pages/presentation";
 
