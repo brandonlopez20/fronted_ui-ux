@@ -11,7 +11,6 @@ const Page = ({ children, className }) => (
   </div>
 );
 
-// Wrapper que muestra loading mientras la página se "carga"
 const LoadablePage = ({ children, onLoad }) => {
   const [loading, setLoading] = useState(true);
 
@@ -20,7 +19,7 @@ const LoadablePage = ({ children, onLoad }) => {
     const timer = setTimeout(() => {
       setLoading(false);
       if (onLoad) onLoad();
-    }, 800); // 800ms loading simulado
+    }, 800);
 
     return () => clearTimeout(timer);
   }, [children]);
@@ -59,6 +58,8 @@ const FullscreenPrompt = ({ onAccept }) => {
         cursor: "pointer",
         zIndex: 9999,
         userSelect: "none",
+        padding: "2rem",
+        textAlign: "center"
       }}
     >
       Haz click para entrar en pantalla completa
@@ -69,7 +70,6 @@ const FullscreenPrompt = ({ onAccept }) => {
 const App = () => {
   const [currentPage, setCurrentPage] = useState(3);
   const [showFullscreenPrompt, setShowFullscreenPrompt] = useState(true);
-
   const totalPages = pages.length;
 
   const nextPage = () => {
@@ -80,16 +80,27 @@ const App = () => {
     setCurrentPage((prev) => (prev - 1 + totalPages) % totalPages);
   };
 
-  const enterFullscreen = () => {
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-      elem.requestFullscreen().then(() => {
+  const enterFullscreen = async () => {
+    try {
+      const elem = document.documentElement;
+
+      if (document.fullscreenElement) {
         setShowFullscreenPrompt(false);
-      }).catch(() => {
-        // Si el usuario cancela o falla, también ocultamos el prompt para no molestar
-        setShowFullscreenPrompt(false);
-      });
-    } else {
+        return;
+      }
+
+      if (elem.requestFullscreen) {
+        await elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) { // Safari
+        await elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) { // IE/Edge
+        await elem.msRequestFullscreen();
+      }
+
+    } catch (err) {
+      alert("No se pudo activar pantalla completa. Puedes continuar sin este modo.");
+      console.warn("Error al activar fullscreen:", err);
+    } finally {
       setShowFullscreenPrompt(false);
     }
   };
@@ -97,7 +108,7 @@ const App = () => {
   return (
     <div className="container">
       {showFullscreenPrompt && <FullscreenPrompt onAccept={enterFullscreen} />}
-      {/* Renderizamos solo la página actual */}
+      
       <LoadablePage key={currentPage}>
         {pages[currentPage].component}
       </LoadablePage>
